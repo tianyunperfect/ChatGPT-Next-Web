@@ -7,7 +7,6 @@ import {
   useImperativeHandle,
 } from "react";
 import { useParams } from "react-router";
-import { useWindowSize } from "@/app/utils";
 import { IconButton } from "./button";
 import { nanoid } from "nanoid";
 import ExportIcon from "../icons/share.svg";
@@ -80,11 +79,11 @@ export const HTMLPreview = forwardRef<HTMLPreviewHander, HTMLPreviewProps>(
     }, [props.autoHeight, props.height, iframeHeight]);
 
     const srcDoc = useMemo(() => {
-      const script = `<script>new ResizeObserver((entries) => parent.postMessage({id: '${frameId}', height: entries[0].target.clientHeight}, '*')).observe(document.body)</script>`;
-      if (props.code.includes("</head>")) {
-        props.code.replace("</head>", "</head>" + script);
+      const script = `<script>window.addEventListener("DOMContentLoaded", () => new ResizeObserver((entries) => parent.postMessage({id: '${frameId}', height: entries[0].target.clientHeight}, '*')).observe(document.body))</script>`;
+      if (props.code.includes("<!DOCTYPE html>")) {
+        props.code.replace("<!DOCTYPE html>", "<!DOCTYPE html>" + script);
       }
-      return props.code + script;
+      return script + props.code;
     }, [props.code, frameId]);
 
     const handleOnLoad = () => {
